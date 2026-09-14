@@ -17,6 +17,13 @@ import { toast } from "sonner";
 
 type Editing = { kind:"project"; item:Project } | { kind:"indicator"; item:Indicator } | null;
 const statuses: ProjectStatus[] = ["pendent", "planificat", "en_curs", "bloquejat", "finalitzat"];
+const LOCAL_STATE_KEY = "la-descomunal-seguiment-state-v1";
+
+function saveLocalState(projects: Project[], indicators: Indicator[]) {
+  if (typeof window !== "undefined") {
+    window.localStorage.setItem(LOCAL_STATE_KEY, JSON.stringify({ projects, indicators }));
+  }
+}
 
 function indicatorState(indicator: Indicator) {
   if (indicator.actualValue === null) return "pendent";
@@ -55,7 +62,16 @@ export default function Home() {
   useEffect(() => {
     fetch("/api/state", { cache:"no-store" })
       .then(async (response) => { if (!response.ok) throw new Error("state unavailable"); return response.json(); })
-      .then((data) => { setProjects(data.projects); setIndicators(data.indicators); })
+      .then((data) => {
+        try {
+          const local = JSON.parse(window.localStorage.getItem(LOCAL_STATE_KEY) || "null");
+          setProjects(local?.projects ?? data.projects);
+          setIndicators(local?.indicators ?? data.indicators);
+        } catch {
+          setProjects(data.projects);
+          setIndicators(data.indicators);
+        }
+      })
       .catch(() => toast.warning("S'ha carregat la planificació inicial. Els canvis es podran desar quan el servei estigui disponible."))
       .finally(() => setLoading(false));
   }, []);
@@ -75,7 +91,11 @@ export default function Home() {
   ], [projects]);
 
   async function saveProject(project: Project) {
-    setProjects((current) => current.map((p) => p.id === project.id ? project : p));
+    setProjects((current) => {
+      const next = current.map((p) => p.id === project.id ? project : p);
+      saveLocalState(next, indicators);
+      return next;
+    });
     setEditing(null);
     const response = await fetch("/api/state", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ type:"project", projectId:project.id, status:project.status, progress:project.progress, startDate:project.startDate, endDate:project.endDate, nextMilestone:project.nextMilestone }) });
     if (!response.ok) return toast.error("No s'han pogut desar els canvis");
@@ -83,7 +103,11 @@ export default function Home() {
   }
 
   async function saveIndicator(indicator: Indicator) {
-    setIndicators((current) => current.map((i) => i.id === indicator.id ? indicator : i));
+    setIndicators((current) => {
+      const next = current.map((i) => i.id === indicator.id ? indicator : i);
+      saveLocalState(projects, next);
+      return next;
+    });
     setEditing(null);
     const response = await fetch("/api/state", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ type:"indicator", indicatorId:indicator.id, actualValue:indicator.actualValue, notes:indicator.notes }) });
     if (!response.ok) return toast.error("No s'ha pogut desar l'indicador");
