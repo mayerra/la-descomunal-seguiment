@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import type { EntityBudget } from "@/lib/budget";
+import { buildContent, type AppState } from "@/lib/state";
 import Link from "next/link";
-import { AlertTriangle, BarChart3, CalendarRange, CheckCircle2, ChevronRight, CircleGauge, Clock3, Euro, FolderKanban, LayoutDashboard, Target } from "lucide-react";
+import { AlertTriangle, BarChart3, CalendarRange, CheckCircle2, ChevronRight, CircleGauge, Clock3, Euro, Eye, EyeOff, FolderKanban, LayoutDashboard, Target } from "lucide-react";
 import { type Indicator, type Project, type ProjectStatus, type UpcomingEvent } from "@/lib/data";
-import { budgetYears, entityBudgets, type BudgetAmounts } from "@/lib/budget";
-import { dictionaries, entityName, getContent, type Dictionary, type Lang } from "@/lib/i18n";
+import { budgetYears, type BudgetAmounts } from "@/lib/budget";
+import { dictionaries, entityName, type Dictionary, type Lang } from "@/lib/i18n";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -41,9 +43,9 @@ function ProjectPill({ status, t }: { status: ProjectStatus; t: Dictionary }) {
   return <span className={`status-pill status-${status}`}><span />{t.statusLabels[status]}</span>;
 }
 
-export default function Dashboard({ lang }: { lang: Lang }) {
+export default function Dashboard({ lang, state }: { lang: Lang; state: AppState }) {
   const t = dictionaries[lang];
-  const { projects, indicators, upcomingEvents, technicalTeam } = useMemo(() => getContent(lang), [lang]);
+  const { projects, indicators, upcomingEvents, technicalTeam, budget } = useMemo(() => buildContent(state, lang), [state, lang]);
   const [selected, setSelected] = useState<Project | null>(null);
   const [indicatorFilter, setIndicatorFilter] = useState("all");
   useEffect(() => { document.documentElement.lang = lang; }, [lang]);
@@ -63,7 +65,7 @@ export default function Dashboard({ lang }: { lang: Lang }) {
       <header className="topbar">
         <div className="brand-mark">LD</div>
         <div className="brand-copy"><strong>La Descomunal</strong><span>{t.appSubtitle}</span></div>
-        <div className="topbar-meta"><span className="live-dot" />{t.liveData}</div>
+        <div className="topbar-meta"><span className="live-dot" />{state.updatedAt ? t.updated(new Date(state.updatedAt).toLocaleDateString(t.locale, { day:"numeric", month:"long", year:"numeric" })) : t.liveData}</div>
         <nav className="lang-switch" aria-label="Idioma">
           {(Object.keys(dictionaries) as Lang[]).map((code) => <Link key={code} href={dictionaries[code].path} className={code === lang ? "active" : undefined} aria-current={code === lang ? "page" : undefined}>{code.toUpperCase()}</Link>)}
         </nav>
@@ -162,10 +164,10 @@ export default function Dashboard({ lang }: { lang: Lang }) {
               </tbody></table></div>
             </section>
           </TabsContent>
-          <TabsContent value="budget" className="tab-panel"><Budget lang={lang} t={t}/></TabsContent>
+          <TabsContent value="budget" className="tab-panel"><Budget lang={lang} t={t} entityBudgets={budget}/></TabsContent>
         </Tabs>
       </div>
-      <footer className="site-footer">{t.footer}</footer>
+      <footer className="site-footer">{t.footer} · <Link href="/admin">{t.teamAccess}</Link></footer>
       <ProjectSheet project={selected} onClose={()=>setSelected(null)} t={t}/>
     </main>
   );
@@ -181,9 +183,15 @@ function sum(values: (number | null)[]) {
 
 const allocated = (amounts: BudgetAmounts) => sum([amounts.nomines, amounts.activitats]);
 
-function Budget({ lang, t }: { lang:Lang; t:Dictionary }) {
+const HIDE_AMOUNTS_KEY = "ld-hide-amounts";
+
+function Budget({ lang, t, entityBudgets }: { lang:Lang; t:Dictionary; entityBudgets:EntityBudget[] }) {
   const b = t.budgetTab;
-  const eur = (value: number | null) => formatEuros(value, t);
+  // La pestanya només es munta al navegador (en fer-hi clic), així que es pot
+  // llegir la preferència desada directament.
+  const [hidden, setHidden] = useState(() => { try { return localStorage.getItem(HIDE_AMOUNTS_KEY) === "1"; } catch { return false; } });
+  const toggleHidden = () => setHidden((current) => { try { localStorage.setItem(HIDE_AMOUNTS_KEY, current ? "0" : "1"); } catch {} return !current; });
+  const eur = (value: number | null) => hidden && value !== null ? "••••• €" : formatEuros(value, t);
   const percent = (part: number | null, whole: number | null) => part !== null && whole ? Math.round(part / whole * 100) : null;
   const programTotal = budgetYears.reduce((total, year) => total + year.total, 0);
   const rows = entityBudgets.map((line) => {
@@ -198,6 +206,7 @@ function Budget({ lang, t }: { lang:Lang; t:Dictionary }) {
   const activities = sum(entityBudgets.flatMap((line) => budgetYears.map((year) => line[year.id].activitats)));
   const staffShare = percent(staff, sum([staff, activities]));
   return <>
+    <div className="budget-toolbar"><button type="button" className="amounts-toggle" onClick={toggleHidden} aria-pressed={hidden}>{hidden ? <Eye size={16}/> : <EyeOff size={16}/>}{hidden ? b.showAmounts : b.hideAmounts}</button></div>
     <div className="metric-grid">
       <Metric icon={<Euro/>} label={b.total} value={eur(programTotal)} note={b.totalNote(eur(budgetYears[0].total))} tone="navy" />
       <Metric icon={<FolderKanban/>} label={b.assigned} value={eur(assigned)} note={b.assignedNote(eur(programTotal - (assigned ?? 0)))} tone="teal" />
