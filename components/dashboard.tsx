@@ -122,7 +122,7 @@ export default function Dashboard({ lang, state }: { lang: Lang; state: AppState
               </section>
             </div>
             <section className="panel team-panel">
-              <div className="panel-title"><div><h2>{t.team.title}</h2><p>{t.team.subtitle}</p></div><span className="team-count">{t.team.count}</span></div>
+              <div className="panel-title"><div><h2>{t.team.title}</h2><p>{t.team.subtitle(technicalTeam.reduce((total, team) => total + team.members.length, 0))}</p></div><span className="team-count">{t.team.count}</span></div>
               <div className="team-grid">
                 {technicalTeam.map((team, index)=><article className="team-card" key={team.entity}>
                   <span className="team-initial">{index + 1}</span>
