@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, BarChart3, CalendarRange, CheckCircle2, ChevronRight, CircleGauge, Clock3, Euro, FolderKanban, LayoutDashboard, Target } from "lucide-react";
-import { budget, type Indicator, type Project, type ProjectStatus, type UpcomingEvent } from "@/lib/data";
-import { dictionaries, getContent, type Dictionary, type Lang } from "@/lib/i18n";
+import { type Indicator, type Project, type ProjectStatus, type UpcomingEvent } from "@/lib/data";
+import { budgetYears, entityBudgets, type BudgetAmounts } from "@/lib/budget";
+import { dictionaries, entityName, getContent, type Dictionary, type Lang } from "@/lib/i18n";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -161,7 +162,7 @@ export default function Dashboard({ lang }: { lang: Lang }) {
               </tbody></table></div>
             </section>
           </TabsContent>
-          <TabsContent value="budget" className="tab-panel"><Budget projects={projects} t={t}/></TabsContent>
+          <TabsContent value="budget" className="tab-panel"><Budget lang={lang} t={t}/></TabsContent>
         </Tabs>
       </div>
       <footer className="site-footer">{t.footer}</footer>
@@ -172,25 +173,65 @@ export default function Dashboard({ lang }: { lang: Lang }) {
 
 function Metric({ icon, label, value, note, tone }: { icon:React.ReactNode; label:string; value:string; note:string; tone:string }) { return <article className={`metric-card metric-${tone}`}><div className="metric-icon">{icon}</div><div><span>{label}</span><strong>{value}</strong><small>{note}</small></div></article>; }
 
-function Budget({ projects, t }: { projects:Project[]; t:Dictionary }) {
-  const lines = projects.map((project) => ({ project, ...budget.find((line) => line.projectId === project.id) }));
-  const known = lines.filter((line) => line.allocated != null);
-  const totalAllocated = known.length ? known.reduce((sum, line) => sum + (line.allocated ?? 0), 0) : null;
-  const totalExecuted = known.length ? known.reduce((sum, line) => sum + (line.executed ?? 0), 0) : null;
-  const rate = (allocated?: number | null, executed?: number | null) => allocated && executed != null ? Math.round(executed / allocated * 100) : null;
-  const totalRate = rate(totalAllocated, totalExecuted);
+// Suma els imports coneguts; null si encara no n'hi ha cap.
+function sum(values: (number | null)[]) {
+  const known = values.filter((value): value is number => value !== null);
+  return known.length ? known.reduce((total, value) => total + value, 0) : null;
+}
+
+const allocated = (amounts: BudgetAmounts) => sum([amounts.nomines, amounts.activitats]);
+
+function Budget({ lang, t }: { lang:Lang; t:Dictionary }) {
+  const b = t.budgetTab;
+  const eur = (value: number | null) => formatEuros(value, t);
+  const percent = (part: number | null, whole: number | null) => part !== null && whole ? Math.round(part / whole * 100) : null;
+  const programTotal = budgetYears.reduce((total, year) => total + year.total, 0);
+  const rows = entityBudgets.map((line) => {
+    const years = budgetYears.map((year) => allocated(line[year.id]));
+    const total = sum(years);
+    const executed = sum(budgetYears.map((year) => line[year.id].executat));
+    return { entity:entityName(line.entity, lang), years, total, executed, rate:percent(executed, total) };
+  });
+  const assigned = sum(rows.map((row) => row.total));
+  const executed = sum(rows.map((row) => row.executed));
+  const staff = sum(entityBudgets.flatMap((line) => budgetYears.map((year) => line[year.id].nomines)));
+  const activities = sum(entityBudgets.flatMap((line) => budgetYears.map((year) => line[year.id].activitats)));
+  const staffShare = percent(staff, sum([staff, activities]));
   return <>
-    <div className="metric-grid budget-metrics">
-      <Metric icon={<Euro/>} label={t.budgetTab.total} value={formatEuros(totalAllocated, t)} note={t.budgetTab.totalNote} tone="navy" />
-      <Metric icon={<CheckCircle2/>} label={t.budgetTab.executed} value={formatEuros(totalExecuted, t)} note={t.budgetTab.executedNote} tone="teal" />
-      <Metric icon={<CircleGauge/>} label={t.budgetTab.execution} value={totalRate === null ? "—" : `${totalRate}%`} note={t.budgetTab.executionNote} tone="gold" />
+    <div className="metric-grid">
+      <Metric icon={<Euro/>} label={b.total} value={eur(programTotal)} note={b.totalNote(eur(budgetYears[0].total))} tone="navy" />
+      <Metric icon={<FolderKanban/>} label={b.assigned} value={eur(assigned)} note={b.assignedNote(eur(programTotal - (assigned ?? 0)))} tone="teal" />
+      <Metric icon={<CheckCircle2/>} label={b.executed} value={eur(executed)} note={b.executedNote} tone="gold" />
+      <Metric icon={<CircleGauge/>} label={b.execution} value={executed === null ? "—" : `${percent(executed, programTotal)}%`} note={b.executionNote} tone="coral" />
+    </div>
+    <div className="visual-summary-grid">
+      {budgetYears.map((year) => {
+        const yearAssigned = sum(entityBudgets.map((line) => allocated(line[year.id])));
+        const yearExecuted = sum(entityBudgets.map((line) => line[year.id].executat));
+        const over = yearAssigned !== null && yearAssigned > year.total ? yearAssigned - year.total : 0;
+        return <section className="panel budget-year" key={year.id}>
+          <div className="panel-title"><div><h2>{lang === "es" ? year.labelEs : year.label}</h2><p>{eur(year.total)}</p></div><CalendarRange/></div>
+          <div className="budget-year-body">
+            <div><span>{b.yearAssigned}</span><strong>{eur(yearAssigned)}</strong><Progress value={percent(yearAssigned, year.total) ?? 0}/></div>
+            <div><span>{b.yearExecuted}</span><strong>{eur(yearExecuted)}</strong><Progress value={percent(yearExecuted, year.total) ?? 0}/></div>
+            {over > 0 && <p className="budget-note">{b.overBudget(eur(over))}</p>}
+          </div>
+        </section>;
+      })}
     </div>
     <section className="panel indicators-panel budget-panel">
-      <div className="section-head"><div><h2>{t.budgetTab.title}</h2><p>{t.budgetTab.subtitle}</p></div></div>
-      {!known.length && <p className="budget-note">{t.budgetTab.pendingNote}</p>}
-      <div className="indicator-table-wrap"><table className="indicator-table budget-table"><thead><tr><th>{t.budgetTab.project}</th><th>{t.budgetTab.allocated}</th><th>{t.budgetTab.executed}</th><th>{t.budgetTab.execution}</th></tr></thead><tbody>
-        {lines.map(({ project, allocated, executed }) => { const value = rate(allocated, executed); return <tr key={project.id}><td><span className="table-project">P{project.number}</span><strong>{project.shortName}</strong><small>{project.owner}</small></td><td className="numeric">{formatEuros(allocated ?? null, t)}</td><td className="numeric">{formatEuros(executed ?? null, t)}</td><td><div className="budget-rate"><Progress value={value ?? 0}/><strong>{value === null ? "—" : `${value}%`}</strong></div></td></tr>; })}
-      </tbody><tfoot><tr><td><strong>{t.budgetTab.totalRow}</strong></td><td className="numeric">{formatEuros(totalAllocated, t)}</td><td className="numeric">{formatEuros(totalExecuted, t)}</td><td><strong>{totalRate === null ? "—" : `${totalRate}%`}</strong></td></tr></tfoot></table></div>
+      <div className="section-head"><div><h2>{b.conceptTitle}</h2><p>{b.conceptSubtitle}</p></div></div>
+      {staffShare === null ? <p className="budget-note">{b.pendingNote}</p> : <>
+        <div className="concept-bar"><i style={{width:`${staffShare}%`}}/></div>
+        <div className="concept-legend"><span><i className="staff"/>{b.staff} · {eur(staff)} · {staffShare}%</span><span><i/>{b.activities} · {eur(activities)} · {100 - staffShare}%</span></div>
+      </>}
+    </section>
+    <section className="panel indicators-panel budget-panel">
+      <div className="section-head"><div><h2>{b.title}</h2><p>{b.subtitle}</p></div></div>
+      {assigned === null && <p className="budget-note">{b.pendingNote}</p>}
+      <div className="indicator-table-wrap"><table className="indicator-table budget-table"><thead><tr><th>{b.entity}</th>{budgetYears.map((year) => <th key={year.id}>{(lang === "es" ? year.labelEs : year.label).split(" · ")[0]}</th>)}<th>{b.totalColumn}</th><th>{b.executed}</th><th>{b.execution}</th></tr></thead><tbody>
+        {rows.map((row) => <tr key={row.entity}><td><strong>{row.entity}</strong></td>{row.years.map((value, index) => <td className="numeric" key={budgetYears[index].id}>{eur(value)}</td>)}<td className="numeric">{eur(row.total)}</td><td className="numeric">{eur(row.executed)}</td><td><div className="budget-rate"><Progress value={row.rate ?? 0}/><strong>{row.rate === null ? "—" : `${row.rate}%`}</strong></div></td></tr>)}
+      </tbody><tfoot><tr><td><strong>{b.totalRow}</strong></td>{budgetYears.map((year) => <td className="numeric" key={year.id}>{eur(sum(entityBudgets.map((line) => allocated(line[year.id]))))}</td>)}<td className="numeric">{eur(assigned)}</td><td className="numeric">{eur(executed)}</td><td><strong>{percent(executed, assigned) === null ? "—" : `${percent(executed, assigned)}%`}</strong></td></tr></tfoot></table></div>
     </section>
   </>;
 }
