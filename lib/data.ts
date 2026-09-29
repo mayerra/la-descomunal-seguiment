@@ -7,7 +7,7 @@ export type Indicator = { id: string; projectId: string; label: string; unit: "%
 export type UpcomingEvent = { id: string; projectId: string; dateLabel: string; title: string; date?: string };
 
 export const projects: Project[] = [
-  { id:"p1", number:1, name:"Espai Nova Essència: Emprenedoria i apoderament femení", shortName:"Nova Essència", owner:"Ajuntament de Lleida", status:"en_curs", progress:30, startDate:"2026-02-01", endDate:"2026-12-31", nextMilestone:"Segona fase de perruqueria +16 · 14 set. 2026", summary:"Formació, apoderament i activació econòmica de dones del territori.", activities:[
+  { id:"p1", number:1, name:"Espai Nova Essència: Emprenedoria i apoderament femení", shortName:"Nova Essència", owner:"Ajuntament de Lleida · Fundació Champagnat · RECOOP", status:"en_curs", progress:30, startDate:"2026-02-01", endDate:"2026-12-31", nextMilestone:"Segona fase de perruqueria +16 · 14 set. 2026", summary:"Formació, apoderament i activació econòmica de dones del territori.", activities:[
     { id:"p1a1", date:"Febrer 2026", label:"Pràctiques formatives", status:"fet" },
     { id:"p1a2", date:"Maig–juny 2026", label:"Programa de perruqueria de 120 hores per a dones de 45 a 60 anys", status:"fet" },
     { id:"p1a3", date:"14 setembre 2026", label:"Segona fase del curs de perruqueria per a persones de més de 16 anys", status:"previst" },
@@ -18,7 +18,10 @@ export const projects: Project[] = [
     { id:"p2a1", date:"Festa Major 2026", label:"Acompanyament a l’Associació de Veïns de la Mariola dins la campanya de comunicació d’aquest any", status:"fet" },
     { id:"p2a2", date:"7 octubre 2026 · 18.30 h", label:"9a Assemblea de La Descomunal", status:"previst" },
   ] },
-  { id:"p3", number:3, name:"Locals Vius: Relleu generacional i emprenedoria", shortName:"Locals Vius", owner:"Ajuntament de Lleida", status:"pendent", progress:0, startDate:"", endDate:"", nextMilestone:"", summary:"Activació de locals buits i suport a nous projectes econòmics.", activities:[] },
+  { id:"p3", number:3, name:"Locals Vius: Relleu generacional i emprenedoria", shortName:"Locals Vius", owner:"Ajuntament de Lleida", status:"en_curs", progress:15, startDate:"", endDate:"", nextMilestone:"", summary:"Diagnosi de locals buits al barri i acompanyament de persones interessades en col·laboració amb Promoció Econòmica.", activities:[
+    { id:"p3a1", date:"2026", label:"Diagnosi de locals buits al barri, amb 3 locals detectats amb potencial de ser reoberts", status:"en_curs" },
+    { id:"p3a2", date:"2026", label:"Acollida i acompanyament de 3 persones interessades, en col·laboració amb Promoció Econòmica", status:"en_curs" },
+  ] },
   { id:"p4", number:4, name:"Infraestructura cultural comunitària", shortName:"Cultura comunitària", owner:"La 9", status:"en_curs", progress:15, startDate:"2026-05-01", endDate:"2028-04-30", nextMilestone:"Inici de capoeira · dimecres 9 set. 2026", summary:"Processos culturals amb joves i brigada tècnica comunitària.", activities:[
     { id:"p4a1", date:"2026", label:"Acompanyament al Festival Enre9 i a l’Escoleta d’Arts", status:"en_curs" },
     { id:"p4a2", date:"Des del 9 setembre 2026", label:"Activitat de capoeira cada dimecres", status:"previst" },
@@ -37,8 +40,12 @@ export const projects: Project[] = [
   { id:"p7", number:7, name:"Brigades comunitàries", shortName:"Brigades", owner:"La 9 / UE Gardeny", status:"en_curs", progress:50, startDate:"2026-05-01", endDate:"2028-04-30", nextMilestone:"Definició de la continuïtat de l’itinerari formatiu", summary:"Capacitació, actuacions reals al barri i inserció laboral.", activities:[
     { id:"p7a1", date:"2026", label:"Primera formació per a joves sobre esdeveniments culturals i grans esdeveniments", status:"fet" },
   ] },
-  { id:"p8", number:8, name:"Ecosistema comunitari d’esport i salut", shortName:"Esport i salut", owner:"UE Gardeny / RECOOP", status:"pendent", progress:null, startDate:"2026-05-01", endDate:"2028-04-30", nextMilestone:"", summary:"Activitat física, salut comunitària i itineraris formatius.", activities:[] },
-  { id:"p9", number:9, name:"Espai Jove Zona 09: Lleure educatiu i itineraris de capacitació", shortName:"Espai Jove Zona 09", owner:"Fundació Champagnat", status:"planificat", progress:20, startDate:"2026-10-06", endDate:"2028-04-30", nextMilestone:"Inici de les càpsules · 6 octubre 2026", summary:"Formació en lleure, pràctiques educatives i oportunitats laborals.", activities:[
+  { id:"p8", number:8, name:"Esport i salut — Unió Esportiva Gardeny", shortName:"Esport i salut", owner:"Unió Esportiva Gardeny", status:"en_curs", progress:20, startDate:"2026-05-01", endDate:"2028-04-30", nextMilestone:"", summary:"Activitat física, salut comunitària, esport femení i rutes saludables amb la gent gran.", activities:[
+    { id:"p8a1", date:"2026", label:"Creació de l’equip de futbol femení", status:"en_curs" },
+    { id:"p8a2", date:"2026", label:"Activitat en col·laboració amb l’Associació de Persones Jubilades de la Mariola", status:"en_curs" },
+    { id:"p8a3", date:"2026", label:"Rutes saludables de matí amb la gent gran", status:"en_curs" },
+  ] },
+  { id:"p9", number:9, name:"Espai Jove Zona 09: Lleure educatiu i itineraris de capacitació", shortName:"Espai Jove Zona 09", owner:"Fundació Champagnat", status:"en_curs", progress:20, startDate:"2026-10-06", endDate:"2028-04-30", nextMilestone:"Inici de les càpsules · 6 octubre 2026", summary:"Formació en lleure, pràctiques educatives i oportunitats laborals.", activities:[
     { id:"p9a1", date:"Pendent", label:"Valoració del pilotatge de la convocatòria anterior", status:"pendent" },
     { id:"p9a2", date:"6–9 octubre 2026", label:"Quatre dies de càpsules formatives de lleure educatiu", status:"previst" },
     { id:"p9a3", date:"10, 17, 24 i 31 octubre 2026", label:"Quatre Dissabtes Descomunals", status:"previst" },
