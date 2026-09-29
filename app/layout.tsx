@@ -4,6 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Seguiment La Descomunal",
   description: "Quadre de seguiment dels nou projectes de La Descomunal 2026-2028.",
+  robots: { index: false, follow: false, googleBot: { index: false, follow: false } },
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",

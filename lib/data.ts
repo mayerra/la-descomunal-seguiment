@@ -4,7 +4,6 @@ export type ActivityStatus = "fet" | "en_curs" | "previst" | "pendent";
 export type ProjectActivity = { id: string; date: string; label: string; status: ActivityStatus };
 export type Project = { id: string; number: number; name: string; shortName: string; owner: string; status: ProjectStatus; progress: number | null; startDate: string; endDate: string; nextMilestone: string; summary: string; activities: ProjectActivity[] };
 export type Indicator = { id: string; projectId: string; label: string; unit: "%" | "nombre" | "estat"; minimum: number; optimum: number; actualValue: number | null; source: string; notes: string };
-export type BudgetLine = { projectId: string; allocated: number | null; executed: number | null };
 export type TeamMember = { name: string; role?: string };
 export type TeamEntity = { entity: string; members: TeamMember[] };
 export type UpcomingEvent = { id: string; projectId: string; dateLabel: string; title: string; date?: string };
@@ -100,8 +99,6 @@ export const indicators: Indicator[] = [
   { id:"i9c", projectId:"p9", label:"Joves que accedeixen a inserció o activació laboral en lleure", unit:"%", minimum:15, optimum:20, actualValue:null, source:"Contractes, derivacions o certificats", notes:"" },
 ];
 
-// Pressupost per projecte en euros. null = pendent d'incorporar.
-export const budget: BudgetLine[] = projects.map((project) => ({ projectId:project.id, allocated:null, executed:null }));
 
 export const technicalTeam: TeamEntity[] = [
   { entity:"RECOOP", members:[{ name:"Anna Maria Doladé", role:"coordinadora" }, { name:"Laura Matias" }] },
