@@ -102,8 +102,8 @@ export const indicators: Indicator[] = [
 
 export const technicalTeam: TeamEntity[] = [
   { entity:"RECOOP", members:[{ name:"Anna Maria Doladé", role:"coordinadora" }, { name:"Laura Matias" }] },
-  { entity:"Ajuntament de Lleida", members:[{ name:"Cristina Saiz" }] },
-  { entity:"Fundació Champagnat", members:[{ name:"(Magdalena) Lali Ayerra", role:"coordinadora" }, { name:"Cristina Balsells" }] },
+  { entity:"Ajuntament de Lleida", members:[{ name:"Cristina Saiz" }, { name:"Marina Panavera" }] },
+  { entity:"Fundació Champagnat", members:[{ name:"Magdalena (Lali) Ayerra", role:"coordinadora" }, { name:"Cristina Balsells" }] },
   { entity:"UE Gardeny", members:[{ name:"Mireia Queralt" }] },
   { entity:"Associació La Nou", members:[{ name:"Júlia Pallarés" }] },
 ];
