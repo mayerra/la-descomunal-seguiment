@@ -1,4 +1,4 @@
-import { indicators, projects } from "../../data";
+import { indicators, projects } from "@/lib/data";
 
 export const dynamic = "force-static";
 
