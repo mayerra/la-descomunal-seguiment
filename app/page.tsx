@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, BarChart3, CalendarRange, CheckCircle2, ChevronRight, CircleGauge, Clock3, FolderKanban, LayoutDashboard, Pencil, Target } from "lucide-react";
-import { projects as initialProjects, indicators as initialIndicators, upcomingEvents, Project, Indicator, ProjectStatus, ActivityStatus, statusLabels } from "./data";
+import { projects as initialProjects, indicators as initialIndicators, upcomingEvents, Project, Indicator, ProjectStatus, ActivityStatus, statusLabels } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
