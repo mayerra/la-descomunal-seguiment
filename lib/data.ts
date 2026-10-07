@@ -16,9 +16,9 @@ export const projects: Project[] = [
     { id:"p1a4", date:"Final de 2026", label:"Curs de manicura", status:"previst" },
     { id:"p1a5", date:"Data pendent", label:"Curs de maquillatge", status:"previst" },
   ] },
-  { id:"p2", number:2, name:"Creix i Participa: Dinamització comunitària i reforç de la xarxa", shortName:"Creix i Participa", owner:"Comitè Activador · 5 entitats", status:"en_curs", progress:20, startDate:"2026-05-01", endDate:"2028-02-29", nextMilestone:"9a Assemblea de La Descomunal · dc. 7 oct. · 18.30 h", summary:"Governança comunitària i consolidació de la xarxa, amb RECOOP, Ajuntament de Lleida, Fundació Champagnat, UE Gardeny i Associació La Nou.", activities:[
+  { id:"p2", number:2, name:"Creix i Participa: Dinamització comunitària i reforç de la xarxa", shortName:"Creix i Participa", owner:"Comitè Activador · 5 entitats", status:"en_curs", progress:20, startDate:"2026-05-01", endDate:"2028-02-29", nextMilestone:"9a Assemblea de La Descomunal · dc. 28 oct. · 18.30 h", summary:"Governança comunitària i consolidació de la xarxa, amb RECOOP, Ajuntament de Lleida, Fundació Champagnat, UE Gardeny i Associació La Nou.", activities:[
     { id:"p2a1", date:"Festa Major 2026", label:"Acompanyament a l’Associació de Veïns de la Mariola dins la campanya de comunicació d’aquest any", status:"fet" },
-    { id:"p2a2", date:"7 octubre 2026 · 18.30 h", label:"9a Assemblea de La Descomunal", status:"previst" },
+    { id:"p2a2", date:"28 octubre 2026 · 18.30 h", label:"9a Assemblea de La Descomunal", status:"previst" },
   ] },
   { id:"p3", number:3, name:"Locals Vius: Relleu generacional i emprenedoria", shortName:"Locals Vius", owner:"Ajuntament de Lleida", status:"en_curs", progress:15, startDate:"2026-05-01", endDate:"2028-02-29", nextMilestone:"", summary:"Diagnosi de locals buits al barri i acompanyament de persones interessades en col·laboració amb Promoció Econòmica.", activities:[
     { id:"p3a1", date:"2026", label:"Diagnosi de locals buits al barri, amb 3 locals detectats amb potencial de ser reoberts", status:"en_curs" },
@@ -33,11 +33,11 @@ export const projects: Project[] = [
     { id:"p5a2", date:"2026", label:"Tallers amb l’Associació Nostàlgia Lleida", status:"fet" },
     { id:"p5a3", date:"Octubre 2026 · data pendent", label:"Possible inauguració de la cuina", status:"previst" },
   ] },
-  { id:"p6", number:6, name:"Hort i Galliner comunitari", shortName:"Hort i galliner", owner:"RECOOP", status:"en_curs", progress:25, startDate:"2026-02-01", endDate:"2028-02-29", nextMilestone:"Primera plantada comunitària · 5 oct. 2026", summary:"Gestió comunitària, sobirania alimentària i participació veïnal.", activities:[
+  { id:"p6", number:6, name:"Hort i Galliner comunitari", shortName:"Hort i galliner", owner:"RECOOP", status:"en_curs", progress:25, startDate:"2026-02-01", endDate:"2028-02-29", nextMilestone:"Primera plantada comunitària · data per confirmar", summary:"Gestió comunitària, sobirania alimentària i participació veïnal.", activities:[
     { id:"p6a1", date:"2026", label:"Quatre reunions de treball del grup motor", status:"fet" },
     { id:"p6a2", date:"2026", label:"Sessió d’acompanyament amb Lliures", status:"fet" },
     { id:"p6a3", date:"2026", label:"Reunió del grup motor de l’Hort amb persones hortolanes", status:"fet" },
-    { id:"p6a4", date:"5 octubre 2026", label:"Primera plantada comunitària", status:"previst" },
+    { id:"p6a4", date:"Data per confirmar", label:"Primera plantada comunitària", status:"previst" },
   ] },
   { id:"p7", number:7, name:"Brigades comunitàries", shortName:"Brigades", owner:"La 9 / UE Gardeny", status:"en_curs", progress:50, startDate:"2026-05-01", endDate:"2028-02-29", nextMilestone:"Definició de la continuïtat de l’itinerari formatiu", summary:"Capacitació, actuacions reals al barri i inserció laboral.", activities:[
     { id:"p7a1", date:"2026", label:"Primera formació per a joves sobre esdeveniments culturals i grans esdeveniments", status:"fet" },
@@ -58,14 +58,14 @@ export const upcomingEvents: UpcomingEvent[] = [
   { id:"e0", projectId:"p4", dateLabel:"9 SET", title:"Inici de capoeira · activitat cada dimecres" },
   { id:"e1", projectId:"p1", dateLabel:"14 SET", title:"Inici de la segona fase del curs de perruqueria" },
   { id:"e2", projectId:"p2", dateLabel:"22 SET", title:"Reunió del Comitè Activador" },
-  { id:"e10", projectId:"p6", dateLabel:"5 OCT", title:"Primera plantada comunitària", date:"2026-10-05" },
   { id:"e3", projectId:"p9", dateLabel:"6–9 OCT", title:"Càpsules formatives d’Espai Jove Zona 09" },
-  { id:"e4", projectId:"p2", dateLabel:"7 OCT", title:"9a Assemblea de La Descomunal · dimecres, 18.30 h" },
   { id:"e5", projectId:"p9", dateLabel:"10 OCT", title:"1r Dissabte Descomunal" },
   { id:"e6", projectId:"p9", dateLabel:"17 OCT", title:"2n Dissabte Descomunal" },
   { id:"e7", projectId:"p9", dateLabel:"24 OCT", title:"3r Dissabte Descomunal" },
+  { id:"e4", projectId:"p2", dateLabel:"28 OCT", title:"9a Assemblea de La Descomunal · dimecres, 18.30 h", date:"2026-10-28" },
   { id:"e8", projectId:"p9", dateLabel:"31 OCT", title:"4t Dissabte Descomunal" },
   { id:"e9", projectId:"p5", dateLabel:"OCT · PENDENT", title:"Possible inauguració de la cuina" },
+  { id:"e10", projectId:"p6", dateLabel:"PER CONFIRMAR", title:"Primera plantada comunitària" },
 ];
 
 export const indicators: Indicator[] = [

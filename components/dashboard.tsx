@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import type { EntityBudget } from "@/lib/budget";
 import { buildContent, type AppState } from "@/lib/state";
 import Link from "next/link";
@@ -245,13 +245,19 @@ function Budget({ lang, t, entityBudgets }: { lang:Lang; t:Dictionary; entityBud
   </>;
 }
 
+const subscribeNever = () => () => {};
+
 function Gantt({ projects, upcomingEvents, onSelect, t }: { projects:Project[]; upcomingEvents:UpcomingEvent[]; onSelect:(project:Project)=>void; t:Dictionary }) {
   const months = useMemo(() => Array.from({length:25}, (_, index) => { const date = new Date(2026,1+index,1); return { key:`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}`, label:date.toLocaleDateString(t.locale,{month:"short"}), year:date.getFullYear() }; }), [t.locale]);
   const start = new Date(2026,1,1).getTime(); const total = new Date(2028,2,1).getTime() - start;
-  return <section className="panel gantt-panel"><div className="section-head"><div><h2>{t.gantt.title}</h2><p>{t.gantt.subtitle}</p></div><span className="legend"><i/>{t.gantt.legend}</span></div>
+  // La línia d'avui es calcula al navegador perquè no quedi fixada a la data de publicació.
+  const now = useSyncExternalStore(subscribeNever, () => new Date().setHours(0,0,0,0), () => null);
+  const todayPct = now === null ? null : (now-start)/total*100;
+  const today = todayPct !== null && todayPct >= 0 && todayPct <= 100 ? todayPct : null;
+  return <section className="panel gantt-panel"><div className="section-head"><div><h2>{t.gantt.title}</h2><p>{t.gantt.subtitle}</p></div><div className="legend-group"><span className="legend"><i/>{t.gantt.progress}</span><span className="legend"><i className="legend-planned"/>{t.gantt.legend}</span><span className="legend"><i className="legend-today"/>{t.gantt.today}</span></div></div>
     <div className="gantt-scroll"><div className="gantt" style={{"--months":months.length} as React.CSSProperties}>
       <div className="gantt-label gantt-corner">{t.gantt.project}</div>{months.map((m,i)=><div key={m.key} className={`gantt-month ${i===0 || months[i-1].year!==m.year ? "new-year":""}`}><strong>{i===0 || months[i-1].year!==m.year ? m.year : ""}</strong><span>{m.label}</span></div>)}
-      {projects.map((project) => { const hasDates = Boolean(project.startDate && project.endDate); const left = hasDates ? Math.max(0,(new Date(project.startDate).getTime()-start)/total*100) : 0; const right = hasDates ? Math.min(100,(new Date(project.endDate).getTime()-start)/total*100) : 0; const milestones = upcomingEvents.filter((event)=>event.projectId === project.id && event.date); return <div className="gantt-row" key={project.id}><button className="gantt-label project-label" onClick={()=>onSelect(project)}><span>{project.number}</span><strong>{project.shortName}</strong></button><div className="gantt-track">{hasDates ? <button className="gantt-bar" style={{left:`${left}%`,width:`${Math.max(2,right-left)}%`}} onClick={()=>onSelect(project)}><i style={{width:`${project.progress ?? 0}%`}}/><span>{project.progress === null ? t.gantt.pending : `${project.progress}%`}</span></button> : <button className="gantt-empty" onClick={()=>onSelect(project)}>{t.gantt.noDates}</button>}{milestones.map((event)=>{ const milestoneLeft = Math.max(0,Math.min(100,(new Date(event.date!).getTime()-start)/total*100)); return <button key={event.id} className="gantt-milestone" style={{left:`${milestoneLeft}%`}} title={event.title} aria-label={`${event.dateLabel}: ${event.title}`} onClick={()=>onSelect(project)}><i/><span>{event.dateLabel}</span></button> })}</div></div>})}
+      {projects.map((project) => { const hasDates = Boolean(project.startDate && project.endDate); const left = hasDates ? Math.max(0,(new Date(project.startDate).getTime()-start)/total*100) : 0; const right = hasDates ? Math.min(100,(new Date(project.endDate).getTime()-start)/total*100) : 0; const milestones = upcomingEvents.filter((event)=>event.projectId === project.id && event.date); return <div className="gantt-row" key={project.id}><button className="gantt-label project-label" onClick={()=>onSelect(project)}><span>{project.number}</span><strong>{project.shortName}</strong></button><div className="gantt-track">{today !== null && <span className="gantt-today" style={{left:`${today}%`}} aria-hidden="true"/>}{hasDates ? <button className="gantt-bar" style={{left:`${left}%`,width:`${Math.max(2,right-left)}%`}} onClick={()=>onSelect(project)}><i style={{width:`${project.progress ?? 0}%`}}/><span>{project.progress === null ? t.gantt.pending : `${project.progress}%`}</span></button> : <button className="gantt-empty" onClick={()=>onSelect(project)}>{t.gantt.noDates}</button>}{milestones.map((event)=>{ const milestoneLeft = Math.max(0,Math.min(100,(new Date(event.date!).getTime()-start)/total*100)); return <button key={event.id} className="gantt-milestone" style={{left:`${milestoneLeft}%`}} title={event.title} aria-label={`${event.dateLabel}: ${event.title}`} onClick={()=>onSelect(project)}><i/><span>{event.dateLabel}</span></button> })}</div></div>})}
     </div></div></section>;
 }
 
